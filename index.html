@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Voxel Craft — Launcher</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+    --bg:#07090d;
+    --panel:rgba(15,18,25,.78);
+    --border:rgba(255,255,255,.09);
+    --text:#f4f6f8;
+    --muted:#858d9a;
+    --accent:#8b5cf6;
+    --accent2:#6366f1;
+}
+
+body{
+    width:100%;
+    height:100vh;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 50% 35%,rgba(99,102,241,.13),transparent 32%),
+        radial-gradient(circle at 80% 80%,rgba(139,92,246,.08),transparent 28%),
+        var(--bg);
+    color:var(--text);
+    font-family:Inter,Arial,sans-serif;
+}
+
+/* background */
+
+.background{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+}
+
+.grid{
+    position:absolute;
+    inset:-30%;
+    background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+    background-size:55px 55px;
+    transform:perspective(500px) rotateX(60deg) translateY(18%);
+    mask-image:linear-gradient(to top,black,transparent 70%);
+}
+
+.glow{
+    position:absolute;
+    width:500px;
+    height:500px;
+    border-radius:50%;
+    background:rgba(99,102,241,.09);
+    filter:blur(100px);
+    left:50%;
+    top:35%;
+    transform:translate(-50%,-50%);
+}
+
+/* menu */
+
+.menu{
+    position:relative;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:38px 46px;
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.logo-mark{
+    width:42px;
+    height:42px;
+    border:1px solid rgba(139,92,246,.55);
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    background:rgba(139,92,246,.08);
+    box-shadow:0 0 30px rgba(139,92,246,.12);
+}
+
+.logo-mark span{
+    width:17px;
+    height:17px;
+    border:3px solid #a78bfa;
+    transform:rotate(45deg);
+}
+
+.logo-text{
+    font-size:15px;
+    font-weight:800;
+    letter-spacing:3px;
+}
+
+.logo-sub{
+    color:var(--muted);
+    font-size:10px;
+    letter-spacing:2px;
+    margin-top:3px;
+}
+
+/* center */
+
+.center{
+    position:absolute;
+    left:50%;
+    top:48%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    width:min(700px,90%);
+}
+
+.version{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color:#a78bfa;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-bottom:18px;
+}
+
+.version::before{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#a78bfa;
+    box-shadow:0 0 12px #a78bfa;
+}
+
+.title{
+    font-size:clamp(45px,8vw,92px);
+    line-height:.95;
+    font-weight:800;
+    letter-spacing:-5px;
+}
+
+.title span{
+    color:#a78bfa;
+    text-shadow:0 0 50px rgba(139,92,246,.22);
+}
+
+.description{
+    max-width:470px;
+    margin:22px auto 34px;
+    color:#858d9a;
+    font-size:14px;
+    line-height:1.7;
+}
+
+/* play */
+
+.play{
+    position:relative;
+    border:0;
+    color:white;
+    background:linear-gradient(135deg,#8b5cf6,#6366f1);
+    padding:17px 38px;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:.5px;
+    cursor:pointer;
+    box-shadow:
+        0 12px 35px rgba(99,102,241,.25),
+        inset 0 1px rgba(255,255,255,.25);
+    transition:.25s;
+}
+
+.play:hover{
+    transform:translateY(-3px);
+    box-shadow:
+        0 18px 45px rgba(99,102,241,.38),
+        inset 0 1px rgba(255,255,255,.25);
+}
+
+.play:active{
+    transform:scale(.97);
+}
+
+.play-icon{
+    margin-right:9px;
+}
+
+/* bottom */
+
+.bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:end;
+}
+
+.info{
+    color:#68717e;
+    font-size:11px;
+    line-height:1.7;
+}
+
+.info strong{
+    color:#a1a8b3;
+    font-weight:600;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+}
+
+.menu-btn{
+    border:1px solid var(--border);
+    background:rgba(15,18,25,.7);
+    backdrop-filter:blur(15px);
+    color:#aab1bd;
+    border-radius:11px;
+    padding:11px 15px;
+    font-family:inherit;
+    font-size:12px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.menu-btn:hover{
+    border-color:rgba(139,92,246,.4);
+    color:white;
+    background:rgba(139,92,246,.08);
+}
+
+/* modal */
+
+.modal{
+    position:fixed;
+    inset:0;
+    z-index:20;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(3,4,7,.72);
+    backdrop-filter:blur(16px);
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.panel{
+    width:min(850px,100%);
+    max-height:90vh;
+    overflow:auto;
+    border:1px solid var(--border);
+    border-radius:20px;
+    background:rgba(12,15,21,.96);
+    box-shadow:0 30px 100px rgba(0,0,0,.55);
+}
+
+.panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:22px 24px;
+    border-bottom:1px solid var(--border);
+}
+
+.panel-title{
+    font-size:17px;
+    font-weight:700;
+}
+
+.close{
+    width:34px;
+    height:34px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:#929aa7;
+    border-radius:9px;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.mods{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    min-height:430px;
+}
+
+.mod-list{
+    border-right:1px solid var(--border);
+    padding:16px;
+}
+
+.mod{
+    padding:13px;
+    border-radius:10px;
+    cursor:pointer;
+    margin-bottom:6px;
+    color:#9098a5;
+    transition:.2s;
+}
+
+.mod:hover,
+.mod.active{
+    background:rgba(139,92,246,.1);
+    color:white;
+}
+
+.mod small{
+    display:block;
+    color:#626a76;
+    margin-top:4px;
+}
+
+.editor{
+    padding:20px;
+}
+
+label{
+    display:block;
+    color:#858d9a;
+    font-size:11px;
+    margin-bottom:7px;
+}
+
+input,
+textarea{
+    width:100%;
+    border:1px solid var(--border);
+    outline:none;
+    color:#e8eaf0;
+    background:#080a0f;
+    border-radius:10px;
+    padding:12px;
+    font-family:inherit;
+    margin-bottom:16px;
+}
+
+textarea{
+    min-height:250px;
+    resize:vertical;
+    font-family:monospace;
+    line-height:1.5;
+}
+
+.editor-buttons{
+    display:flex;
+    gap:8px;
+}
+
+.action{
+    border:1px solid var(--border);
+    background:#10131a;
+    color:#d7dae0;
+    border-radius:9px;
+    padding:10px 14px;
+    cursor:pointer;
+}
+
+.action.primary{
+    background:#6d55d9;
+    border-color:#8069e8;
+    color:white;
+}
+
+/* loading */
+
+.loading{
+    position:fixed;
+    inset:0;
+    z-index:50;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:#06080c;
+}
+
+.loading.show{
+    display:flex;
+}
+
+.loader{
+    width:min(430px,85%);
+}
+
+.loader-logo{
+    text-align:center;
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:4px;
+    margin-bottom:35px;
+}
+
+.status{
+    color:#8e96a4;
+    font-size:12px;
+    margin-bottom:12px;
+}
+
+.progress{
+    height:3px;
+    background:#171b23;
+    border-radius:5px;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#6366f1,#a78bfa);
+    transition:width .35s;
+    box-shadow:0 0 15px #8069e8;
+}
+
+.percent{
+    text-align:right;
+    margin-top:9px;
+    color:#545c68;
+    font-size:10px;
+}
+
+/* game */
+
+#game{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:0;
+    display:none;
+    background:#000;
+    z-index:100;
+}
+
+/* mobile */
+
+@media(max-width:700px){
+    .menu{
+        padding:25px 20px;
+    }
+
+    .top{
+        align-items:flex-start;
+    }
+
+    .title{
+        letter-spacing:-3px;
+    }
+
+    .description{
+        font-size:12px;
+    }
+
+    .bottom{
+        align-items:end;
+    }
+
+    .info{
+        display:none;
+    }
+
+    .buttons{
+        width:100%;
+        justify-content:flex-end;
+    }
+
+    .mods{
+        grid-template-columns:1fr;
+    }
+
+    .mod-list{
+        border-right:0;
+        border-bottom:1px solid var(--border);
+        max-height:150px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="glow"></div>
+    <div class="grid"></div>
+</div>
+
+<div class="menu" id="menu">
+
+    <div class="top">
+        <div class="logo">
+            <div class="logo-mark"><span></span></div>
+            <div>
+                <div class="logo-text">VOXEL CRAFT</div>
+                <div class="logo-sub">REMASTER</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="center">
+        <div class="version">REMastered Edition</div>
+
+        <div class="title">
+            BUILD.<br>
+            <span>CREATE.</span>
+        </div>
+
+        <div class="description">
+            Исследуй процедурный мир, создавай собственные постройки
+            и экспериментируй с модификациями.
+        </div>
+
+        <button class="play" onclick="launchGame()">
+            <span class="play-icon">▶</span>
+            ЗАПУСТИТЬ ИГРУ
+        </button>
+    </div>
+
+    <div class="bottom">
+
+        <div class="info">
+            <strong>VOXEL CRAFT REMASTER</strong><br>
+            Browser Edition · Client Launcher
+        </div>
+
+        <div class="buttons">
+            <button class="menu-btn" onclick="openMods()">
+                🧩 МОДЫ
+            </button>
+
+            <button class="menu-btn" onclick="toggleFullscreen()">
+                ⛶ ЭКРАН
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODS -->
+
+<div class="modal" id="modsModal">
+    <div class="panel">
+
+        <div class="panel-head">
+            <div class="panel-title">Модификации</div>
+            <button class="close" onclick="closeMods()">×</button>
+        </div>
+
+        <div class="mods">
+
+            <div class="mod-list" id="modList"></div>
+
+            <div class="editor">
+
+                <label>Название мода</label>
+                <input id="modName" placeholder="Например: Better UI">
+
+                <label>JavaScript</label>
+                <textarea id="modCode"
+placeholder="// Код мода
+console.log('Мод загружен!');"></textarea>
+
+                <div class="editor-buttons">
+                    <button class="action primary" onclick="saveMod()">
+                        Сохранить
+                    </button>
+
+                    <button class="action" onclick="newMod()">
+                        Новый
+                    </button>
+
+                    <button class="action" onclick="deleteMod()">
+                        Удалить
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- LOADING -->
+
+<div class="loading" id="loading">
+
+    <div class="loader">
+
+        <div class="loader-logo">
+            VOXEL CRAFT
+        </div>
+
+        <div class="status" id="status">
+            Инициализация...
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+
+        <div class="percent" id="percent">
+            0%
+        </div>
+
+    </div>
+
+</div>
+
+<iframe id="game" allowfullscreen></iframe>
+
+<script>
+
+const GAME_URL =
+"https://raw.githubusercontent.com/PidrHackerOfficial/Remaster/refs/heads/main/voxel_craft_remaster_misc_glb-8.html";
+
+const MODS_STORAGE = "voxel_craft_launcher_mods";
+
+let mods = [];
+let selectedMod = null;
+
+const $ = id => document.getElementById(id);
+
+/* =========================
+   MODS
+========================= */
+
+function loadMods(){
+
+    try{
+        mods = JSON.parse(
+            localStorage.getItem(MODS_STORAGE) || "[]"
+        );
+    }catch{
+        mods = [];
+    }
+
+    renderMods();
+}
+
+function saveMods(){
+
+    localStorage.setItem(
+        MODS_STORAGE,
+        JSON.stringify(mods)
+    );
+
+}
+
+function renderMods(){
+
+    const list = $("modList");
+    list.innerHTML = "";
+
+    if(!mods.length){
+
+        list.innerHTML = `
+            <div style="
+                color:#606875;
+                font-size:12px;
+                padding:12px;
+            ">
+                Нет установленных модов
+            </div>
+        `;
+
+        return;
+    }
+
+    mods.forEach(mod => {
+
+        const el = document.createElement("div");
+
+        el.className =
+            "mod " +
+            (selectedMod === mod.id ? "active" : "");
+
+        el.innerHTML = `
+            ${escapeHTML(mod.name)}
+            <small>
+                ${mod.enabled ? "Включён" : "Выключен"}
+            </small>
+        `;
+
+        el.onclick = () => selectMod(mod.id);
+
+        list.appendChild(el);
+
+    });
+
+}
+
+function selectMod(id){
+
+    selectedMod = id;
+
+    const mod =
+        mods.find(x => x.id === id);
+
+    if(!mod) return;
+
+    $("modName").value = mod.name;
+    $("modCode").value = mod.code;
+
+    renderMods();
+}
+
+function newMod(){
+
+    selectedMod = null;
+
+    $("modName").value = "Новый мод";
+    $("modCode").value =
+`console.log("Мой мод загружен!");
+
+// Ваш JavaScript здесь`;
+
+    renderMods();
+}
+
+function saveMod(){
+
+    const name =
+        $("modName").value.trim() ||
+        "Безымянный мод";
+
+    const code =
+        $("modCode").value;
+
+    if(selectedMod){
+
+        const mod =
+            mods.find(x => x.id === selectedMod);
+
+        if(mod){
+
+            mod.name = name;
+            mod.code = code;
+
+        }
+
+    }else{
+
+        const mod = {
+
+            id:
+                Date.now().toString(36) +
+                Math.random().toString(36).slice(2),
+
+            name,
+            code,
+            enabled:true
+
+        };
+
+        mods.push(mod);
+        selectedMod = mod.id;
+
+    }
+
+    saveMods();
+    renderMods();
+
+}
+
+function deleteMod(){
+
+    if(!selectedMod) return;
+
+    mods =
+        mods.filter(x => x.id !== selectedMod);
+
+    selectedMod = null;
+
+    $("modName").value = "";
+    $("modCode").value = "";
+
+    saveMods();
+    renderMods();
+
+}
+
+function escapeHTML(str){
+
+    return String(str)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+/* =========================
+   MOD INJECTION
+========================= */
+
+function injectMods(html){
+
+    const enabled =
+        mods.filter(mod => mod.enabled);
+
+    if(!enabled.length)
+        return html;
+
+    const scripts =
+        enabled.map(mod => {
+
+            const safeCode =
+                String(mod.code)
+                    .replace(/<\/script/gi,"<\\/script");
+
+            return `
+<script>
+/* Voxel Craft Launcher Mod: ${escapeHTML(mod.name)} */
+
+try {
+
+${safeCode}
+
+}catch(error){
+
+console.error(
+    "[Launcher Mod] ${escapeHTML(mod.name)}",
+    error
+);
+
+}
+
+<\/script>
+`;
+
+        }).join("\n");
+
+    if(/<\/body>/i.test(html)){
+
+        return html.replace(
+            /<\/body>/i,
+            scripts + "\n</body>"
+        );
+
+    }
+
+    return html + scripts;
+
+}
+
+/* =========================
+   MOD MENU
+========================= */
+
+function openMods(){
+
+    $("modsModal").classList.add("show");
+
+}
+
+function closeMods(){
+
+    $("modsModal").classList.remove("show");
+
+}
+
+/* =========================
+   FULLSCREEN
+========================= */
+
+async function toggleFullscreen(){
+
+    try{
+
+        if(!document.fullscreenElement){
+
+            await document.documentElement
+                .requestFullscreen();
+
+        }else{
+
+            await document.exitFullscreen();
+
+        }
+
+    }catch{}
+
+}
+
+/* =========================
+   LAUNCH
+========================= */
+
+async function launchGame(){
+
+    $("menu").style.display = "none";
+    $("loading").classList.add("show");
+
+    const steps = [
+
+        "Связывание с центральным сервером...",
+        "Получение игрового кода...",
+        "Проверка цельности кода...",
+        "Загрузка модификаций...",
+        "Подготовка игрового окружения...",
+        "Запуск Voxel Craft..."
+
+    ];
+
+    try{
+
+        await step(steps[0],10,400);
+
+        const response =
+            await fetch(GAME_URL,{
+                cache:"no-store"
+            });
+
+        await step(steps[1],30,300);
+
+        if(!response.ok){
+
+            throw new Error(
+                "HTTP " + response.status
+            );
+
+        }
+
+        let html =
+            await response.text();
+
+        await step(steps[2],50,300);
+
+        if(
+            html.length < 1000 ||
+            !/<html/i.test(html)
+        ){
+
+            throw new Error(
+                "Полученный код игры повреждён."
+            );
+
+        }
+
+        await step(steps[3],70,300);
+
+        html = injectMods(html);
+
+        await step(steps[4],85,400);
+
+        const blob =
+            new Blob(
+                [html],
+                {type:"text/html"}
+            );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const game = $("game");
+
+        game.onload = () => {
+
+            URL.revokeObjectURL(url);
+
+        };
+
+        game.src = url;
+
+        await step(steps[5],100,700);
+
+        $("loading").classList.remove("show");
+
+        game.style.display = "block";
+
+        try{
+
+            await game.requestFullscreen();
+
+        }catch{}
+
+        try{
+
+            if(screen.orientation?.lock){
+
+                await screen.orientation
+                    .lock("landscape");
+
+            }
+
+        }catch{}
+
+    }catch(error){
+
+        console.error(error);
+
+        $("loading").classList.remove("show");
+        $("menu").style.display = "flex";
+
+        alert(
+            "Не удалось запустить Voxel Craft.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+function step(text,percent,delay){
+
+    return new Promise(resolve => {
+
+        $("status").textContent = text;
+        $("progress").style.width =
+            percent + "%";
+        $("percent").textContent =
+            percent + "%";
+
+        setTimeout(resolve,delay);
+
+    });
+
+}
+
+/* =========================
+   START
+========================= */
+
+loadMods();
+
+</script>
+
+</body>
+</html>
